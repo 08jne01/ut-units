@@ -1,0 +1,29 @@
+site_name: Squiggle
+plugins:
+    - search
+
+docs_dir: doc
+use_directory_urls: false
+
+theme:
+    name: material
+    palette:
+        scheme: slate
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
+nav:
+    - 'index.md'
+    - Concepts: 'concepts.md'
+    - Types: 'types.md'
+    - Vector: 'vector.md'
+    - Matrix: 'matrix.md'
+    - Quaternion: 'quaternion.md'
