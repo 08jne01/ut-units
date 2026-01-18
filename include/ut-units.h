@@ -97,9 +97,9 @@ namespace ut::detail
 
     template<typename T1, typename T2>
     concept compatible_qty = requires() {
-        requires qty_type<T1>;
-        requires qty_type<T2>;
-        requires std::same_as<typename T1::type, typename T2::type>;
+requires qty_type<T1>;
+    requires qty_type<T2>;
+    requires std::same_as<typename T1::type, typename T2::type>;
         requires same_dimensions<typename T1::dimensions, typename T2::dimensions>::value;
     };
 
@@ -156,8 +156,7 @@ namespace ut
         // we could do something like template specialisation or use requires
         // however these all end in horrible error messages, static_assert is
         // the most clear way to convey this failure.
-        template<std::floating_point Ty>
-        [[nodiscard]] constexpr operator Ty() const noexcept
+        [[nodiscard]] constexpr operator T() const noexcept
         { 
             static_assert( std::same_as<dimensions,qty_dimensions<>>, 
                 "Implicit conversion to floating point (T) requires dimensionless (ratios,angles,etc). You can use .in( ut::<your unit of choice> ) to convert to a floating point value of that unit."

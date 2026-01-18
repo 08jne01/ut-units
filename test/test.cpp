@@ -21,47 +21,61 @@ using qt = ut::qty<double,ut::qty_dimensions<second,metre,kilogram,ampere,kelvin
 
 TEST_CASE("Unit Operations", "[Units][Operators]")
 {
-    // just check that our custom pow works
-    static_assert( pow(2.0, 0) == 1.0 );
-    static_assert( pow(2.0, 1) == 2.0 );
-    static_assert( pow(2.0, 2) == 2.0 * 2.0 );
-    static_assert( pow(2.0, 3) == 2.0 * 2.0 * 2.0 );
-    static_assert( pow(2.0, 4) == 2.0 * 2.0 * 2.0 * 2.0 );
-    static_assert( pow(2.0, 5) == 2.0 * 2.0 * 2.0 * 2.0 * 2.0 );
-    static_assert( pow(2.0, 6) == 2.0 * 2.0 * 2.0 * 2.0 * 2.0 * 2.0 );
 
-    static_assert( pow(2.0, -1) == 1.0 / 2.0 );
-    static_assert( pow(2.0, -2) == 1.0 / 2.0 / 2.0 );
-    static_assert( pow(2.0, -3) == 1.0 / 2.0 / 2.0 / 2.0 );
-    static_assert( pow(2.0, -4) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 );
-    static_assert( pow(2.0, -5) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 );
-    static_assert( pow(2.0, -6) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+    SECTION("pow test")
+    {
+        // just check that our custom pow works
+        static_assert( pow(2.0, 0) == 1.0 );
+        static_assert( pow(2.0, 1) == 2.0 );
+        static_assert( pow(2.0, 2) == 2.0 * 2.0 );
+        static_assert( pow(2.0, 3) == 2.0 * 2.0 * 2.0 );
+        static_assert( pow(2.0, 4) == 2.0 * 2.0 * 2.0 * 2.0 );
+        static_assert( pow(2.0, 5) == 2.0 * 2.0 * 2.0 * 2.0 * 2.0 );
+        static_assert( pow(2.0, 6) == 2.0 * 2.0 * 2.0 * 2.0 * 2.0 * 2.0 );
 
-    static_assert( requires(qt<5> q) {
-        { q + qt<5>{} } -> std::same_as<qt<5>>;
-        { q - qt<5>{} } -> std::same_as<qt<5>>;
-        { q += qt<5>{} } -> std::same_as<void>;
-        { q -= qt<5>{} } -> std::same_as<void>;
-    });
+        static_assert( pow(2.0, -1) == 1.0 / 2.0 );
+        static_assert( pow(2.0, -2) == 1.0 / 2.0 / 2.0 );
+        static_assert( pow(2.0, -3) == 1.0 / 2.0 / 2.0 / 2.0 );
+        static_assert( pow(2.0, -4) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+        static_assert( pow(2.0, -5) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+        static_assert( pow(2.0, -6) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+    }
 
-    static_assert( requires(qt<5> q) {
-        { q *= double{} };
-        { q /= double{} };
-        { q * double{} } -> std::same_as<qt<5>>;
-        { q / double{} } -> std::same_as<qt<5>>;
-        { q * qt<3>{} } -> std::same_as<qt<8>>;
-        { q / qt<3>{} } -> std::same_as<qt<2>>;
-    });
+    SECTION("Operator Constraints")
+    {
+        static_assert( requires(qt<5> q) {
+            { q + qt<5>{} } -> std::same_as<qt<5>>;
+            { q - qt<5>{} } -> std::same_as<qt<5>>;
+            { q += qt<5>{} } -> std::same_as<void>;
+            { q -= qt<5>{} } -> std::same_as<void>;
+        });
 
-    // All the invalid stuff
-    // static_assert( ! requires(qt<5> q) {
-    //     { q + qt<4>{} } -> std::same_as<qt<5>>;
-    //     { q - qt<4>{} } -> std::same_as<qt<5>>;
-    //     { q += qt<4>{} } -> std::same_as<void>;
-    //     { q -= qt<4>{} } -> std::same_as<void>;
-    //     { q *= qt<5>{} };
-    //     { q /= qt<5>{} };
-    // });
+        static_assert( requires(qt<5> q) {
+            { q *= double{} };
+            { q /= double{} };
+            { q * double{} } -> std::same_as<qt<5>>;
+            { q / double{} } -> std::same_as<qt<5>>;
+            { q * qt<3>{} } -> std::same_as<qt<8>>;
+            { q / qt<3>{} } -> std::same_as<qt<2>>;
+        });
+
+        // All the invalid stuff
+        // static_assert( ! requires(qt<5> q) {
+        //     { q + qt<4>{} } -> std::same_as<qt<5>>;
+        //     { q - qt<4>{} } -> std::same_as<qt<5>>;
+        //     { q += qt<4>{} } -> std::same_as<void>;
+        //     { q -= qt<4>{} } -> std::same_as<void>;
+        //     { q *= qt<5>{} };
+        //     { q /= qt<5>{} };
+        // });
+    }
+
+    SECTION("Implicit Conversion")
+    {
+        const ut::dimensionless<double> v = 42.0 * ut::one;
+        const double implicit_conversion = v;
+        REQUIRE(implicit_conversion == 42.0);
+    }
 
     SECTION("Multiply/Divide")
     {
