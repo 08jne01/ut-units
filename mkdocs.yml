@@ -1,4 +1,4 @@
-site_name: Squiggle
+site_name: ut-units
 plugins:
     - search
 
@@ -19,11 +19,13 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
 
+extra_css:
+  - stylesheets/extra.css
+
 
 nav:
     - 'index.md'
-    - Concepts: 'concepts.md'
-    - Types: 'types.md'
-    - Vector: 'vector.md'
-    - Matrix: 'matrix.md'
-    - Quaternion: 'quaternion.md'
+    - Quantity: 'quantity.md'
+    - Aliases: 'aliases.md'
+    - Units: 'units.md'
+    - Functions: 'functions.md'

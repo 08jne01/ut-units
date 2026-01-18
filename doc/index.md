@@ -36,7 +36,7 @@ ut::length<double> length = 10.0 * ut::metre;
 double length_in_ft_as_double = length.in(ut::foot);
 ```
 
-This makes it easy to interface with existing code that does not use units.
+This makes it easy to interface with existing code that does not use units. See the [quantity page](quantity.md) for more.
 
 ### Using Units
 
@@ -52,6 +52,15 @@ angle += dt * drift_rate;
 const double cosa = std::cos( angle ); // dimensionless are implicitly converted to corresponding floating point
 ```
 
+### Gotchas
+
+Care must be taken when creating some quantities as incorrect brackets can lead to unexpected results. This is because operator presedence still applies. Consider the example below
+
+```cpp
+ut::angular_rate<double> rate  = 1.0 * ut::degree / ( 2.0 * ut::minute );
+ut::angular_rate<double> rate  = 1.0 * ut::degree / 2.0 * ut::minute; // this is the same as 1.0 * ( ut::degree / 2.0) * ut::minute and fails to compile
+```
+
 ### Symbols
 
 Short hand symbols are provided for convenient use in the sym namespace.
@@ -59,6 +68,8 @@ Short hand symbols are provided for convenient use in the sym namespace.
 ```cpp
 ut::energy<double> energy = 10.0 * sym::kWH
 ```
+
+See the [units page](units.md) for more.
 
 ### Defining New Units
 
@@ -70,6 +81,8 @@ static constexpr ut::qty nautical_mile = 1852.0 * ut::metre;
 static constexpr ut::qty knot = ut::nautical_mile / ut::hour;
 ```
 
+See the [units page](units.md) for more.
+
 ### Defining New Unit Aliases
 
 Unit aliases are names for categories of unit which share the same dimension
@@ -77,6 +90,8 @@ Unit aliases are names for categories of unit which share the same dimension
 ```cpp
 template<std::floating_point T> using speed = ut::qty<T,decltype(ut::metre_per_second)::dimensions>;
 ```
+
+See the [aliases page](aliases.md) for more.
 
 ### Converting from double to float
 
@@ -104,5 +119,6 @@ Contributions are welcome. There are several ways to contribute:
 - Adding new aliases
 - Making issues for any bugs discovered.
 - Fixing bugs
+- Adding tests
 
 There are no specific requirements for contributing but for code contributions please match the general style and provide comments with sources for any significant assertions (definition of specific unit for example).
