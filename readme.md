@@ -107,7 +107,7 @@ ut::force<float> force = 100.0f * ut::newton.f();
 
 ## Install
 
-This is a single header library so you can just drop the [include/ut-units.h](../include/ut-units.h) file in your project.
+This is a single header library so you can just drop the [include/ut-units.h](https://github.com/08jne01/ut-units/blob/main/include/ut-units.h) file in your project.
 
 Alternatively if you wish to use CMake, ut-units provides an interface library. There are two main methods to include this.
 
