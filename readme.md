@@ -105,6 +105,37 @@ Units are defined with the `double` type but can be easily converted `float`.
 ut::force<float> force = 100.0f * ut::newton.f();
 ```
 
+## Install
+
+This is a single header library so you can just drop the [include/ut-units.h](../include/ut-units.h) file in your project.
+
+Alternatively if you wish to use CMake, ut-units provides an interface library. There are two main methods to include this.
+
+### git submodule
+
+`git submodule add https://github.com/08jne01/ut-units.git ext/ut-units`
+
+where ext here is the path to your dependencies folder. Then in your CMakeLists.txt simply add
+
+```CMake
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ext/ut-units")
+target_link_libraries(<your-target> PRIVATE ut-units)
+```
+
+### Fetch Content
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+    ut-units
+    GIT_REPOSITORY "https://github.com/08jne01/ut-units.git"
+    GIT_TAG        <git revision of choice>
+)
+
+FetchContent_MakeAvailable(ut-units)
+target_link_libraries(<your-target> PRIVATE ut-units)
+```
+
 ## Overhead
 
 Since we want this to be as close to a "zero cost abstraction" as possible it is important we ensure that the generated code is the same or similar to the equivalent code written as doubles. This is mostly the case when it comes to gcc and clang compilers however the MSVC compiler struggles with this when it comes to passing these units by value.

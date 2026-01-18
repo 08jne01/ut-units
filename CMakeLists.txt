@@ -17,7 +17,7 @@ if ( UT_UNITS_TEST )
     include(FetchContent)
     FetchContent_Declare(
         Catch2
-        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_REPOSITORY "https://github.com/catchorg/Catch2.git"
         GIT_TAG        88abf9bf325c798c33f54f6b9220ef885b267f4f # v3.12.0
     )
 
@@ -25,7 +25,7 @@ if ( UT_UNITS_TEST )
 
     #add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ext/Catch2")
     add_executable(ut-units-test ${source_list})
-    set_property(TARGET ut-units-test PROPERTY CXX_STANDARD 23)
+    set_property(TARGET ut-units-test PROPERTY CXX_STANDARD 20)
     target_link_libraries(ut-units-test PRIVATE Catch2::Catch2WithMain ut-units)
 endif()
 

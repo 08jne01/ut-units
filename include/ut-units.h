@@ -145,7 +145,6 @@ namespace ut
             static_assert( detail::same_dimensions<other_dims, dimensions>::value, "dimensions do not match" );
             static_assert( std::same_as<Ty, T>, "scalar types do not match consider using .cast<Scalar>()" );
             static_assert( false, "assignment failed - this operator is never valid" );
-            std::unreachable();
         }
 
         template<detail::compatible_qty<qty> Ty>
