@@ -13,15 +13,20 @@ target_include_directories( ut-units INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/incl
 set(UT_UNITS_TEST OFF CACHE BOOL "Build Unit Tests")
 
 if ( UT_UNITS_TEST )
-    MESSAGE(INFO " Building Unit Tests")
-    include(FetchContent)
-    FetchContent_Declare(
-        Catch2
-        GIT_REPOSITORY "https://github.com/catchorg/Catch2.git"
-        GIT_TAG        88abf9bf325c798c33f54f6b9220ef885b267f4f # v3.12.0
-    )
+    if ( NOT TARGET Catch2::Catch2WithMain )
+        
+        include(FetchContent)
+        FetchContent_Declare(
+            Catch2
+            GIT_REPOSITORY "https://github.com/catchorg/Catch2.git"
+            GIT_TAG        88abf9bf325c798c33f54f6b9220ef885b267f4f # v3.12.0
+        )
 
-    FetchContent_MakeAvailable(Catch2)
+        FetchContent_MakeAvailable(Catch2)
+        MESSAGE(INFO " [ut-units] Fetching Catch2")
+    endif()
+
+    MESSAGE(INFO " [ut-units] Building Unit Tests")
 
     #add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ext/Catch2")
     add_executable(ut-units-test ${source_list})
