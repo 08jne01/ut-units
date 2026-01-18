@@ -28,8 +28,13 @@ ut::time<double> t = 0.1 * ut::minutes;
 ut::speed<double> dV = v1 - v0; // 2.048 m/s
 ut::acceleration<double> a = dV / t; // 0.341 m/s^2
 
-double acceleration_in_ft_per_second2 = a.in(ut::foot_per_second2); // 1.120
-double acceleration_in_m_per_second2 = a.in(ut::metre_per_second2); // 0.341
+ut::mass<double> mass = 24.0 * ut::pound; // 
+
+ut::force<double> force = mass * a;
+
+double force_in_N = a.in(ut::newton); // 3.71
+double force_in_lbf = a.in(ut::pound_force); // 0.83
+
 ```
 
 Aliases are preferable to using `ut::qty` as with `ut::qty` you either have to specify dimensions manually or use template type deduction which can result in an unintended unit type. Using an alias constrains the unit the intended dimensions and indicates to the reader what the author intended.
