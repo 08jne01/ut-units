@@ -37,7 +37,7 @@ jobs:
           - os: windows-latest
             platform: linux
           - os: windows-latest
-            platform: linux
+            platform: linux-clang
           - os: ubuntu-latest
             platform: windows
 
