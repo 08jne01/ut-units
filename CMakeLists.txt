@@ -10,9 +10,10 @@ file(GLOB_RECURSE headers_list "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h" "${CMAK
 add_library( ut-units INTERFACE )
 target_include_directories( ut-units INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
-set(UT_UNITS_TEST ON)
+set(UT_UNITS_TEST OFF CACHE BOOL "Build Unit Tests")
 
 if ( UT_UNITS_TEST )
+    MESSAGE(INFO " Building Unit Tests")
     include(FetchContent)
     FetchContent_Declare(
         Catch2
@@ -28,7 +29,7 @@ if ( UT_UNITS_TEST )
     target_link_libraries(ut-units-test PRIVATE Catch2::Catch2WithMain ut-units)
 endif()
 
-set(UT_UNITS_DOCS ON)
+set(UT_UNITS_DOCS OFF CACHE BOOL "Build Docs")
 
 if ( UT_UNITS_DOCS )
     file(GLOB_RECURSE site_sources "${CMAKE_CURRENT_SOURCE_DIR}/doc/*.md")

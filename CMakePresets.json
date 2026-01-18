@@ -18,6 +18,22 @@
             }
         },
         {
+            "name": "base-linux-clang",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
             "name": "base-windows",
             "hidden": true,
             "generator": "Ninja",
@@ -35,7 +51,7 @@
         },
         {
             "name": "x64-debug-linux",
-            "displayName": "x64 Debug",
+            "displayName": "[gcc] x64 Debug",
             "inherits": "base-linux",
             "architecture": {
                 "value": "x64",
@@ -47,7 +63,7 @@
         },
         {
             "name": "x64-release-debug-linux",
-            "displayName": "x64 Release With Debug Info",
+            "displayName": "[gcc] x64 Release With Debug Info",
             "inherits": "x64-debug-linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
@@ -55,8 +71,36 @@
         },
         {
             "name": "x64-release-linux",
-            "displayName": "x64 Release",
+            "displayName": "[gcc] x64 Release",
             "inherits": "x64-debug-linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "x64-debug-linux-clang",
+            "displayName": "[clang] x64 Debug",
+            "inherits": "base-linux-clang",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "x64-release-debug-linux-clang",
+            "displayName": "[clang] x64 Release With Debug Info",
+            "inherits": "x64-debug-linux-clang",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "x64-release-linux-clang",
+            "displayName": "[clang] x64 Release",
+            "inherits": "x64-debug-linux-clang",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
