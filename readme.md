@@ -92,7 +92,8 @@ See the [units page](https://08jne01.github.io/ut-units/units.html) for more.
 Unit aliases are names for categories of unit which share the same dimension
 
 ```cpp
-template<std::floating_point T> using speed = ut::qty<T,decltype(ut::metre_per_second)::dimensions>;
+template<std::floating_point T> 
+using speed = ut::qty<T,decltype(ut::metre_per_second)::dimensions>;
 ```
 
 See the [aliases page](https://08jne01.github.io/ut-units/aliases.html) for more.
