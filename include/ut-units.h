@@ -104,7 +104,7 @@ namespace ut::detail
     };
 
     template<typename>
-    struct always_false : std::false_type {};
+    struct always_false { static constexpr bool value = false; };
 
 } // end namespace ut::detail
 
@@ -150,16 +150,17 @@ namespace ut
 
         [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T in( 
             const qty_offset<T,dimensions>& other
-        ) const;
+        ) const noexcept;
 
         // This is only for dimensionless quantities
         // we could do something like template specialisation or use requires
         // however these all end in horrible error messages, static_assert is
         // the most clear way to convey this failure.
-        [[nodiscard]] explicit constexpr operator T() const 
+        template<std::floating_point Ty>
+        [[nodiscard]] constexpr operator Ty() const noexcept
         { 
             static_assert( std::same_as<dimensions,qty_dimensions<>>, 
-                "Implicit conversion to floating point (T) requires dimensionless (ratios,angles,etc). You can use .in( ut::<your unit of choice> ) to convert to a floating point value in a specific unit."
+                "Implicit conversion to floating point (T) requires dimensionless (ratios,angles,etc). You can use .in( ut::<your unit of choice> ) to convert to a floating point value of that unit."
             );
             return value; 
         }
@@ -167,7 +168,7 @@ namespace ut
         // This invalid operator is provided to give readable warnings upon incorrect assignment.
         template<typename Ty, typename other_dims>
         requires ( ! std::same_as<qty<Ty,other_dims>,qty> )
-        [[nodiscard]] constexpr operator qty<Ty,other_dims>() const 
+        [[nodiscard]] constexpr operator qty<Ty,other_dims>() const noexcept
         { 
             static_assert( detail::same_dimensions<other_dims, dimensions>::value, "dimensions do not match" );
             static_assert( std::same_as<Ty, T>, "scalar types do not match consider using .cast<Scalar>()" );
@@ -175,19 +176,19 @@ namespace ut
         }
 
         template<detail::compatible_qty<qty> Ty>
-        [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T in( const Ty& other ) const { return value / other.value; }
+        [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T in( const Ty& other ) const noexcept { return value / other.value; }
 
         // Convert to Specific Scalar but Keep the Unit
         // returns qty<Ty,dimensions>
         template<std::constructible_from<T> TyScalar>
-        [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<TyScalar,dimensions> cast() const
+        [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<TyScalar,dimensions> cast() const noexcept
         { 
             qty<TyScalar,dimensions> result;
             result.value = TyScalar( value );
             return result; 
         }
 
-        [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<float,dimensions> f() const
+        [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<float,dimensions> f() const noexcept
         {
             qty<float,dimensions> result;
             result.value = float( value );
@@ -206,7 +207,7 @@ namespace ut
     };
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    UT_UNITS_CRITICAL_INLINE constexpr T qty<T,dimensions>::in( const qty_offset<T,dimensions>& other) const
+    UT_UNITS_CRITICAL_INLINE constexpr T qty<T,dimensions>::in( const qty_offset<T,dimensions>& other) const noexcept
     {
         return (value / other.value) - other.offset;
     }
@@ -317,7 +318,7 @@ namespace ut // operators, unit definitions and aliases
         detail::qty_dimensions_type TyRight
     >
     [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_multiply<T, TyLeft, TyRight>
-    operator*(qty<T,TyLeft> left, qty<T,TyRight> right)
+    operator*(qty<T,TyLeft> left, qty<T,TyRight> right) noexcept
     {
         detail::qty_multiply<T, TyLeft,TyRight> value;
         value.value = left.value * right.value;
@@ -330,7 +331,7 @@ namespace ut // operators, unit definitions and aliases
         detail::qty_dimensions_type TyRight
     >
     [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_divide<T, TyLeft, TyRight>
-    operator/( qty<T,TyLeft> left, qty<T,TyRight> right)
+    operator/( qty<T,TyLeft> left, qty<T,TyRight> right) noexcept
     {
         detail::qty_divide<T, TyLeft,TyRight> value;
         value.value = left.value / right.value;
@@ -339,7 +340,7 @@ namespace ut // operators, unit definitions and aliases
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr TyLeft operator+(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr TyLeft operator+(TyLeft left, TyRight right) noexcept
     {
         TyLeft value;
         value.value = left.value + right.value;
@@ -348,7 +349,7 @@ namespace ut // operators, unit definitions and aliases
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr TyLeft operator-(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr TyLeft operator-(TyLeft left, TyRight right) noexcept
     {
         TyLeft value;
         value.value = left.value - right.value;
@@ -357,83 +358,83 @@ namespace ut // operators, unit definitions and aliases
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    UT_UNITS_CRITICAL_INLINE constexpr void operator+=(TyLeft& left, TyRight right)
+    UT_UNITS_CRITICAL_INLINE constexpr void operator+=(TyLeft& left, TyRight right) noexcept
     {
         left.value += right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    UT_UNITS_CRITICAL_INLINE constexpr void operator-=(TyLeft& left, TyRight right)
+    UT_UNITS_CRITICAL_INLINE constexpr void operator-=(TyLeft& left, TyRight right) noexcept
     {
         left.value -= right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator<(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator<(TyLeft left, TyRight right) noexcept
     {
         return left.value < right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator<=(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator<=(TyLeft left, TyRight right) noexcept
     {
         return left.value <= right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator>(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator>(TyLeft left, TyRight right) noexcept
     {
         return left.value > right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator>=(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator>=(TyLeft left, TyRight right) noexcept
     {
         return left.value >= right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator==(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator==(TyLeft left, TyRight right) noexcept
     {
         return left.value == right.value;
     }
 
     template<typename TyLeft, typename TyRight>
     requires( detail::compatible_qty<TyLeft,TyRight> )
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator!=(TyLeft left, TyRight right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr bool operator!=(TyLeft left, TyRight right) noexcept
     {
         return left.value != right.value;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator-(qty<T,dimensions> value)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator-(qty<T,dimensions> value) noexcept
     {
         value.value = -value.value;
         return value;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions, std::convertible_to<T> Ty>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*(Ty left, qty<T,dimensions> right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*(Ty left, qty<T,dimensions> right) noexcept
     {
         right.value *= left;
         return right;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*(qty<T,dimensions> left, T right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*(qty<T,dimensions> left, T right) noexcept
     {
         left.value *= right;
         return left;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_divide<T, qty_dimensions<>, dimensions> operator/(T left, qty<T,dimensions> right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_divide<T, qty_dimensions<>, dimensions> operator/(T left, qty<T,dimensions> right) noexcept
     {
         detail::qty_divide<T, qty_dimensions<>, dimensions> result;
         result.value = left / right.value;
@@ -441,14 +442,14 @@ namespace ut // operators, unit definitions and aliases
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator/(qty<T,dimensions> left, T right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator/(qty<T,dimensions> left, T right) noexcept
     {
         left.value /= right;
         return left;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*(T left, qty_offset<T,dimensions> right)
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*(T left, qty_offset<T,dimensions> right) noexcept
     {
         qty<T,dimensions> result;
         result.value = (left + right.offset) * right.value;
@@ -456,13 +457,13 @@ namespace ut // operators, unit definitions and aliases
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    UT_UNITS_CRITICAL_INLINE constexpr void operator*=(qty<T,dimensions>& left, T right)
+    UT_UNITS_CRITICAL_INLINE constexpr void operator*=(qty<T,dimensions>& left, T right) noexcept
     {
         left.value *= right;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    UT_UNITS_CRITICAL_INLINE constexpr void operator/=(qty<T,dimensions>& left, T right)
+    UT_UNITS_CRITICAL_INLINE constexpr void operator/=(qty<T,dimensions>& left, T right) noexcept
     {
         left.value /= right;
     }
@@ -487,7 +488,7 @@ namespace ut // operators, unit definitions and aliases
     static constexpr qty minute                 = 60.0 * second;
     static constexpr qty hour                   = 60.0 * minute;
     static constexpr qty kilometre              = 1000.0 * metre;
-    static constexpr qty milimetre              = 1.0e-3 * metre;
+    static constexpr qty millimetre              = 1.0e-3 * metre;
     static constexpr qty centimetre             = 1.0e-2 * metre;
     static constexpr qty decimetre              = 0.1 * metre;
     static constexpr qty newton                 = kilogram * metre / ( second * second );
@@ -525,7 +526,7 @@ namespace ut // operators, unit definitions and aliases
 
     // International Units
     static constexpr qty foot                   = 0.3048 * metre;
-    static constexpr qty inch                   = 25.4 * milimetre;
+    static constexpr qty inch                   = 25.4 * millimetre;
     static constexpr qty nautical_mile          = 1852.0 * metre;
     static constexpr qty yard                   = 3.0 * foot;
     static constexpr qty mile                   = 5280.0 * foot;
@@ -603,7 +604,7 @@ namespace sym
     static constexpr auto V         = ut::volt;
     static constexpr auto F         = ut::farad;
 
-    static constexpr auto mm        = ut::milimetre;
+    static constexpr auto mm        = ut::millimetre;
     static constexpr auto km        = ut::kilometre;
     static constexpr auto degC      = ut::celsius;
     static constexpr auto kgps      = ut::kilogram_per_second;
@@ -646,19 +647,19 @@ namespace ut
 
     // Returns underling value
     template<std::floating_point T>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T scalar( T value ) { return value; }
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T scalar( T value )  noexcept { return value; }
 
      // Returns underling value
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T scalar( qty<T,dimensions> value ) { return value.value; }
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T scalar( qty<T,dimensions> value )  noexcept { return value.value; }
 
     // Assigns value from floating point
     template<std::floating_point T>
-    UT_UNITS_CRITICAL_INLINE constexpr void assign( T& value, T new_value ) { value = new_value; }
+    UT_UNITS_CRITICAL_INLINE constexpr void assign( T& value, T new_value )  noexcept { value = new_value; }
 
     // Assigns value from floating point
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    UT_UNITS_CRITICAL_INLINE constexpr void assign( qty<T,dimensions>& value, T new_value ) { value.value = new_value; }
+    UT_UNITS_CRITICAL_INLINE constexpr void assign( qty<T,dimensions>& value, T new_value )  noexcept { value.value = new_value; }
 
     // template<std::floating_point T, typename dimensions>
     // UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> create( T value )
@@ -672,13 +673,13 @@ namespace ut
     }
 
     template<int N, std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_pow<N,T,dimensions> pow( qty<T,dimensions> value )
+    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_pow<N,T,dimensions> pow( qty<T,dimensions> value ) noexcept
     {
         if constexpr ( N >= 0 )
         {
             detail::qty_pow<N,T,dimensions> result;
             result.value = 1.0;
-            for ( size_t i = 0; i < N; i++ )
+            for ( int i = 0; i < N; i++ )
             {
                 result.value *= value.value;
             }
@@ -688,7 +689,7 @@ namespace ut
         {
             detail::qty_pow<N,T,dimensions> result;
             result.value = 1.0;
-            for ( size_t i = 0; i < std::abs(N); i++ )
+            for ( int i = 0; i < std::abs(N); i++ )
             {
                 result.value /= value.value;
             }
