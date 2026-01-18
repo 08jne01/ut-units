@@ -63,10 +63,10 @@ each of the 7 fundemental dimensions are specified by an integer indicating the 
 Below is some example usage of the various functions and operations. We define some quantities with their respective units.
 
 ```cpp
-ut::length<double> distance     = 5000.0 * ut::foot;            // 5000 ft
-ut::mass<double>    mass        = 2.0 * ut::kilogram;           // 2 kg
-ut::speed<double>   velocity    = 3.0 * ut::metre_per_second;   // 3 m/s
-ut::temperature<double> temp    = 25.0 * ut::celsius;           // 25 °C
+ut::length<double>      distance    = 5000.0 * ut::foot;            // 5000 ft
+ut::mass<double>        mass        = 2.0 * ut::kilogram;           // 2 kg
+ut::speed<double>       velocity    = 3.0 * ut::metre_per_second;   // 3 m/s
+ut::temperature<double> temp        = 25.0 * ut::celsius;           // 25 °C
 ```
 
 Calculating kinetic energy.
