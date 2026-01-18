@@ -253,7 +253,6 @@ namespace ut::detail
     template<int N, std::floating_point T, detail::qty_dimensions_type dimensions>
     struct qty_pow_s
     {
-        static_assert( N > 0, "Power can only be positive integer" );
         using value = qty<
             T,
             qty_dimensions<
@@ -431,13 +430,13 @@ namespace ut // operators, unit definitions and aliases
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator*=(qty<T,dimensions>& left, T right)
+    UT_UNITS_CRITICAL_INLINE constexpr void operator*=(qty<T,dimensions>& left, T right)
     {
         left.value *= right;
     }
 
     template<std::floating_point T, detail::qty_dimensions_type dimensions>
-    [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr qty<T,dimensions> operator/=(qty<T,dimensions>& left, T right)
+    UT_UNITS_CRITICAL_INLINE constexpr void operator/=(qty<T,dimensions>& left, T right)
     {
         left.value /= right;
     }
@@ -649,13 +648,26 @@ namespace ut
     template<int N, std::floating_point T, detail::qty_dimensions_type dimensions>
     [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr detail::qty_pow<N,T,dimensions> pow( qty<T,dimensions> value )
     {
-        detail::qty_pow<N,T,dimensions> result;
-        result.value = 1.0;
-        for ( size_t i = 0; i < N; i++ )
+        if constexpr ( N >= 0 )
         {
-            result.value *= value.value;
+            detail::qty_pow<N,T,dimensions> result;
+            result.value = 1.0;
+            for ( size_t i = 0; i < N; i++ )
+            {
+                result.value *= value.value;
+            }
+            return result;
         }
-        return result;
+        else
+        {
+            detail::qty_pow<N,T,dimensions> result;
+            result.value = 1.0;
+            for ( size_t i = 0; i < std::abs(N); i++ )
+            {
+                result.value /= value.value;
+            }
+            return result;
+        }
     }
 
     template<typename T>

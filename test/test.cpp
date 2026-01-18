@@ -1,43 +1,14 @@
-#include <ut-units.h>
+#include "test.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <random>
+#include <catch2/catch_get_random_seed.hpp>
 //#include <GD/Math/Vector.h>
 
 
 using Catch::Matchers::WithinRel;
 using Catch::Matchers::WithinAbs;
-
-consteval double pow( double x, int y )
-{
-    if ( y > 0 )
-    {
-        double result = 1.0;
-        for ( int i = 0; i < y; i++ )
-            result *= x;
-
-        return result;
-    }
-    else if ( y < 0 )
-    {
-        double result = 1.0;
-        for ( int i = 0; i < -y; i++ )
-            result /= x;
-
-        return result;
-    }
-
-    return 1.0;
-}
-
-// test units
-static constexpr ut::qty<double,ut::qty_dimensions<1>>              t_time       { .value = 0.1 };
-static constexpr ut::qty<double,ut::qty_dimensions<0,1>>            t_length     { .value = 0.2 };
-static constexpr ut::qty<double,ut::qty_dimensions<0,0,1>>          t_mass       { .value = 0.3 };
-static constexpr ut::qty<double,ut::qty_dimensions<0,0,0,1>>        t_current    { .value = 0.4 };
-static constexpr ut::qty<double,ut::qty_dimensions<0,0,0,0,1>>      t_temp       { .value = 0.5 };
-static constexpr ut::qty<double,ut::qty_dimensions<0,0,0,0,0,1>>    t_amount     { .value = 0.6 };
-static constexpr ut::qty<double,ut::qty_dimensions<0,0,0,0,0,0,1>>  t_lum        { .value = 0.7 };
 
 template<
     int second = 0, 
@@ -50,13 +21,50 @@ template<
 >
 using qt = ut::qty<double,ut::qty_dimensions<second,metre,kilogram,ampere,kelvin,mole,candela>>;
 
-TEST_CASE("Unit-Float Operations", "[Units][Operators][Float]")
-{
-
-} 
-
 TEST_CASE("Unit Operations", "[Units][Operators]")
 {
+    // just check that our custom pow works
+    static_assert( pow(2.0, 0) == 1.0 );
+    static_assert( pow(2.0, 1) == 2.0 );
+    static_assert( pow(2.0, 2) == 2.0 * 2.0 );
+    static_assert( pow(2.0, 3) == 2.0 * 2.0 * 2.0 );
+    static_assert( pow(2.0, 4) == 2.0 * 2.0 * 2.0 * 2.0 );
+    static_assert( pow(2.0, 5) == 2.0 * 2.0 * 2.0 * 2.0 * 2.0 );
+    static_assert( pow(2.0, 6) == 2.0 * 2.0 * 2.0 * 2.0 * 2.0 * 2.0 );
+
+    static_assert( pow(2.0, -1) == 1.0 / 2.0 );
+    static_assert( pow(2.0, -2) == 1.0 / 2.0 / 2.0 );
+    static_assert( pow(2.0, -3) == 1.0 / 2.0 / 2.0 / 2.0 );
+    static_assert( pow(2.0, -4) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+    static_assert( pow(2.0, -5) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+    static_assert( pow(2.0, -6) == 1.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 / 2.0 );
+
+    static_assert( requires(qt<5> q) {
+        { q + qt<5>{} } -> std::same_as<qt<5>>;
+        { q - qt<5>{} } -> std::same_as<qt<5>>;
+        { q += qt<5>{} } -> std::same_as<void>;
+        { q -= qt<5>{} } -> std::same_as<void>;
+    });
+
+    static_assert( requires(qt<5> q) {
+        { q *= double{} };
+        { q /= double{} };
+        { q * double{} } -> std::same_as<qt<5>>;
+        { q / double{} } -> std::same_as<qt<5>>;
+        { q * qt<3>{} } -> std::same_as<qt<8>>;
+        { q / qt<3>{} } -> std::same_as<qt<2>>;
+    });
+
+    // All the invalid stuff
+    // static_assert( ! requires(qt<5> q) {
+    //     { q + qt<4>{} } -> std::same_as<qt<5>>;
+    //     { q - qt<4>{} } -> std::same_as<qt<5>>;
+    //     { q += qt<4>{} } -> std::same_as<void>;
+    //     { q -= qt<4>{} } -> std::same_as<void>;
+    //     { q *= qt<5>{} };
+    //     { q /= qt<5>{} };
+    // });
+
     SECTION("Multiply/Divide")
     {
         static constexpr qt<1> t1 = t_time;
@@ -175,4 +183,26 @@ TEST_CASE("Operations", "[Functions]")
         const ut::length<double> length_again = ut::sqrt( area );
         REQUIRE( length.value == length_again.value );
     }
+}
+
+TEST_CASE("Unit Operations Randomised", "[Units][Operators][Random]")
+{
+    std::mt19937 generator(Catch::getSeed());
+    std::uniform_real_distribution<> distribution{-1.0e6, 1.0e6};
+
+    for ( size_t i = 0; i < 10000; i++ )
+    {
+        const double unit_1_scale = distribution(generator);
+        const double unit_2_scale = distribution(generator);
+        const double unit_scalar = distribution(generator);
+        CAPTURE(i,unit_1_scale, unit_2_scale, unit_scalar);
+        // Actual dimensions are not used at run time at all, so it makes sense to only test a few types.
+        Test<ut::qty_dimensions<-1,-4,2,5,-1,1,0>, 	ut::qty_dimensions<1,-4,0,1,3,-4,2>>(unit_1_scale, unit_2_scale, unit_scalar);
+        Test<ut::qty_dimensions<-1,-4,2,5,-1,1,0>, 	ut::qty_dimensions<1,-4,0,1,3,-4,2>>(unit_1_scale, unit_2_scale, unit_scalar);
+        Test<ut::qty_dimensions<-2,-2,2,2,4,1,-3>, 	ut::qty_dimensions<1,-4,0,0,-2,-3,-4>>(unit_1_scale, unit_2_scale, unit_scalar);
+        Test<ut::qty_dimensions<-4,2,-5,1,0,2,-1>, 	ut::qty_dimensions<3,5,5,2,0,0,4>>(unit_1_scale, unit_2_scale, unit_scalar);
+
+    }
+
+    auto test_unit = TestUnit<ut::qty_dimensions<1,-5,6,7,12>>();
 }
