@@ -2,6 +2,7 @@
 #include <concepts>
 #include <numbers>
 #include <cmath>
+#include <utility>
 
 #pragma once
 #ifndef UT_UNITS_CRITICAL_INLINE
@@ -36,22 +37,6 @@ struct qty_dimensions
     static constexpr int d_mole = mole;
     static constexpr int d_candela = candela;
 };
-
-
-template<int T1, int T2>
-concept same_time           = T1 == T2;
-template<int T1, int T2>
-concept same_length         = T1 == T2;
-template<int T1, int T2>
-concept same_mass           = T1 == T2;
-template<int T1, int T2>
-concept same_current        = T1 == T2;
-template<int T1, int T2>
-concept same_temperature    = T1 == T2;
-template<int T1, int T2>
-concept same_amount         = T1 == T2;
-template<int T1, int T2>
-concept same_luminosity     = T1 == T2;
 
 template<typename T1, typename T2>
 struct same_dimensions
@@ -92,16 +77,6 @@ struct sqrtable
         T::d_mole     % 2 == 0 &&
         T::d_candela  % 2 == 0;
 };
-
-// template<typename T1, typename T2>
-// concept same_dimension = 
-//     same_time           <T1::d_second   , T2::d_second>     &&
-//     same_length         <T1::d_metre    , T2::d_metre>      &&
-//     same_mass           <T1::d_kilogram , T2::d_kilogram>   &&
-//     same_current        <T1::d_ampere   , T2::d_ampere>     &&
-//     same_temperature    <T1::d_kelvin   , T2::d_kelvin>     &&
-//     same_amount         <T1::d_mole     , T2::d_mole>       &&
-//     same_luminosity     <T1::d_candela  , T2::d_candela>;
 
 template<typename T1, typename T2>
 concept compatible_qty =
@@ -146,6 +121,17 @@ struct qty
         return value; 
     }
 
+    // This invalid operator is provided to give readable warnings upon incorrect assignment.
+    template<typename Ty, typename TyDimensions>
+    requires ( ! std::same_as<Ty,qty> )
+    [[nodiscard]] constexpr operator qty<Ty,TyDimensions>() const 
+    { 
+        static_assert( same_dimensions<TyDimensions, dimensions>::value, "dimensions do not match" );
+        static_assert( std::same_as<Ty, T>, "scalar types do not match consider using .cast<Scalar>()" );
+        static_assert( false, "assignment failed - this operator is never valid" );
+        std::unreachable();
+    }
+
     template<compatible_qty<qty> Ty>
     [[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr T in( const Ty& other ) const { return value / other.value; }
 
@@ -165,31 +151,7 @@ struct qty
         result.value = float( value );
         return result;
     }
-
-    // returns reference in SI units
-    template<compatible_qty<qty> Ty>
-    UT_UNITS_CRITICAL_INLINE constexpr T& ref() { return value; }
 };
-
-
-// template<std::floating_point T>
-// struct qty<T,qty_dimensions<>>
-// {
-//     using type = T;
-//     using dimensions = qty_dimensions<>;
-
-//     // stored in base SI units
-//     T value;
-
-//     UT_UNITS_CRITICAL_INLINE constexpr T in( 
-//         const qty_offset<T,dimensions>& other
-//     ) const;
-
-//     constexpr operator T() const { return value; }
-
-//     template<compatible_qty<qty> Ty>
-//     UT_UNITS_CRITICAL_INLINE constexpr T in( const Ty& other ) const { return value / other.value; }
-// };
 
 template<
     std::floating_point T,
@@ -338,14 +300,14 @@ requires( compatible_qty<TyLeft,TyRight> )
 
 template<typename TyLeft, typename TyRight>
 requires( compatible_qty<TyLeft,TyRight> )
-[[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr void operator+=(TyLeft& left, TyRight right)
+UT_UNITS_CRITICAL_INLINE constexpr void operator+=(TyLeft& left, TyRight right)
 {
     left.value += right.value;
 }
 
 template<typename TyLeft, typename TyRight>
 requires( compatible_qty<TyLeft,TyRight> )
-[[nodiscard]] UT_UNITS_CRITICAL_INLINE constexpr void operator-=(TyLeft& left, TyRight right)
+UT_UNITS_CRITICAL_INLINE constexpr void operator-=(TyLeft& left, TyRight right)
 {
     left.value -= right.value;
 }
