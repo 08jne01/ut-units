@@ -4,8 +4,6 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <random>
 #include <catch2/catch_get_random_seed.hpp>
-//#include <GD/Math/Vector.h>
-
 
 using Catch::Matchers::WithinRel;
 using Catch::Matchers::WithinAbs;
@@ -183,6 +181,19 @@ TEST_CASE("Operations", "[Functions]")
         const ut::length<double> length_again = ut::sqrt( area );
         REQUIRE( length.value == length_again.value );
     }
+}
+
+TEST_CASE("qty_offset", "[Units][Offset]")
+{
+    ut::temperature<double> t_c = 25.0 * ut::celsius;
+    ut::temperature<double> t_f = 32.0 * ut::fahrenheit;
+
+    REQUIRE_THAT( t_c.in(ut::kelvin), Catch::Matchers::WithinULP(298.15, 1) );
+    REQUIRE_THAT( t_f.in(ut::kelvin), Catch::Matchers::WithinULP(273.15, 1) );
+
+    REQUIRE_THAT( t_c.in(ut::celsius), Catch::Matchers::WithinULP(25.0, 1) );
+    REQUIRE_THAT( t_f.in(ut::fahrenheit), Catch::Matchers::WithinULP(32.0, 1) );
+
 }
 
 TEST_CASE("Unit Operations Randomised", "[Units][Operators][Random]")

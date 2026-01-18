@@ -25,9 +25,7 @@ SOFTWARE.
 #include <concepts>
 #include <numbers>
 #include <cmath>
-#include <utility>
 
-#pragma once
 #ifndef UT_UNITS_CRITICAL_INLINE
 #   if defined(_MSC_VER)
 #       define UT_UNITS_CRITICAL_INLINE __forceinline
@@ -104,6 +102,10 @@ namespace ut::detail
         requires std::same_as<typename T1::type, typename T2::type>;
         requires same_dimensions<typename T1::dimensions, typename T2::dimensions>::value;
     };
+
+    template<typename>
+    struct always_false : std::false_type {};
+
 } // end namespace ut::detail
 
 namespace ut
@@ -156,7 +158,9 @@ namespace ut
         // the most clear way to convey this failure.
         [[nodiscard]] explicit constexpr operator T() const 
         { 
-            static_assert( std::same_as<dimensions,qty_dimensions<>>, "Implicit conversion to floating point (T) requires dimensionless (ratios,angles,etc). You can use .in( ut::<your unit of choice> ) to convert to a floating point value in a specific unit." );
+            static_assert( std::same_as<dimensions,qty_dimensions<>>, 
+                "Implicit conversion to floating point (T) requires dimensionless (ratios,angles,etc). You can use .in( ut::<your unit of choice> ) to convert to a floating point value in a specific unit."
+            );
             return value; 
         }
 
@@ -167,7 +171,7 @@ namespace ut
         { 
             static_assert( detail::same_dimensions<other_dims, dimensions>::value, "dimensions do not match" );
             static_assert( std::same_as<Ty, T>, "scalar types do not match consider using .cast<Scalar>()" );
-            static_assert( false, "assignment failed - this operator is never valid" );
+            static_assert( detail::always_false<qty<Ty,other_dims>>::value, "assignment failed - this operator is never valid" );
         }
 
         template<detail::compatible_qty<qty> Ty>
@@ -600,7 +604,7 @@ namespace sym
     static constexpr auto F         = ut::farad;
 
     static constexpr auto mm        = ut::milimetre;
-    static constexpr auto km        = ut::kilogram;
+    static constexpr auto km        = ut::kilometre;
     static constexpr auto degC      = ut::celsius;
     static constexpr auto kgps      = ut::kilogram_per_second;
     static constexpr auto kgpm3     = ut::kilogram_per_metre3;

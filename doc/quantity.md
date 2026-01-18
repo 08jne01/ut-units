@@ -58,6 +58,53 @@ struct qty_dimensions
 
 each of the 7 fundemental dimensions are specified by an integer indicating the power. For example the dimensions LT^-2 is indicated by `qty_dimensions<-2,1>`.
 
+## Usage
+
+Below is some example usage of the various functions and operations. We define some quantities with their respective units.
+
+```cpp
+ut::length<double> distance     = 5000.0 * ut::foot;            // 5000 ft
+ut::mass<double>    mass        = 2.0 * ut::kilogram;           // 2 kg
+ut::speed<double>   velocity    = 3.0 * ut::metre_per_second;   // 3 m/s
+ut::temperature<double> temp    = 25.0 * ut::celsius;           // 25 °C
+```
+
+Calculating kinetic energy.
+
+```cpp
+ut::energy<double> kinetic_energy = 0.5 * mass * ut::pow<2>(velocity);
+double kinetic_energy_joules = kinetic_energy.in(ut::joule);
+std::cout << std::format("Kinetic energy {} J\n", kinetic_energy_joules);
+```
+
+Converting distance.
+
+```cpp
+std::cout << std::format("Distance {} ft, {} km\n", distance.in(ut::foot), distance.in(ut::kilometre));
+```
+
+Converting temperature.
+
+```cpp
+std::cout << std::format("Temperature {} °C, {} K\n", temp.in(ut::celsius), temp.in(ut::kelvin));
+```
+
+Function arguments. Pass by value is same as double/float ([with negligable exception on MSVC](index.md#overhead)).
+
+```cpp
+auto calculate_potential_energy = []( ut::mass<double> mass, ut::length<double> height ) -> ut::energy<double> {   
+    // gravitational acceleration g = 9.81 m/s^2
+    constexpr ut::acceleration<double> g = 9.81 * ut::metre_per_second2;
+    return mass * g * height; // kg * (m/s^2) * m -> J
+};
+
+ut::length<double> height = 2.5 * ut::foot;
+ut::energy<double> potential_energy = calculate_potential_energy(mass, height);
+ut::time<double> time = 1.0 * ut::minute;
+ut::power<double> power = potential_energy / time;
+std::cout << std::format("Energy {} J, Power {} kW\n", potential_energy.in(ut::joule), power.in(ut::kilowatt));
+```
+
 ## Members
 
 ### in
