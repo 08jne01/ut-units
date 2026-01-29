@@ -509,7 +509,7 @@ namespace ut // operators, unit definitions and aliases
     static constexpr qty gram                   = 1.0e-3 * kilogram;
     static constexpr qty kilogram_per_second    = kilogram / second;
     static constexpr qty kilogram_metre2        = kilogram * metre * metre;
-
+    
     static constexpr qty litre                  = decimetre * decimetre * decimetre;
     static constexpr qty metre2                 = metre * metre;
     static constexpr qty centimetre2            = centimetre * centimetre;
@@ -518,6 +518,7 @@ namespace ut // operators, unit definitions and aliases
     static constexpr qty radian_per_second2     = radian / (second*second);
     static constexpr qty degree_per_second      = degree / second;
     static constexpr qty kilogram_per_metre3    = kilogram / metre3;
+    static constexpr qty metre3_per_second      = metre3 / second;
 
     static constexpr qty revolution             = { .value = 2.0 * std::numbers::pi };
     static constexpr qty revolution_per_second  = revolution / second;
@@ -573,6 +574,7 @@ namespace ut // operators, unit definitions and aliases
     template<std::floating_point T> using angular_acceleration  = qty<T,decltype(radian_per_second2)::dimensions>;
     template<std::floating_point T> using frequency             = qty<T,decltype(hertz)::dimensions>;
     template<std::floating_point T> using mass_flow_rate        = qty<T,decltype(kilogram_per_second)::dimensions>;
+    template<std::floating_point T> using volume_flow_rate      = qty<T,decltype(metre3_per_second)::dimensions>;
     template<std::floating_point T> using moment_of_inertia     = qty<T,decltype(kilogram_metre2)::dimensions>;
     template<std::floating_point T> using density               = qty<T,decltype(kilogram_per_metre3)::dimensions>;
 }
