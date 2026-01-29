@@ -158,3 +158,8 @@ Contributions are welcome. There are several ways to contribute:
 - Adding tests
 
 There are no specific requirements for contributing but for code contributions please match the general style and provide comments with sources for any significant assertions (definition of specific unit for example).
+
+## Other Similar Libraries
+
+- [mp-units](https://github.com/08jne01/ut-units)
+- [SI](https://github.com/bernedom/SI)
