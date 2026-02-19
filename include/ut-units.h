@@ -523,6 +523,7 @@ namespace ut // operators, unit definitions and aliases
     static constexpr qty revolution             = { .value = 2.0 * std::numbers::pi };
     static constexpr qty revolution_per_second  = revolution / second;
     static constexpr qty revolution_per_minute  = revolution / minute; 
+    static constexpr qty millibar               = 100.0 * ut::pascal;
 
     // International Units
     static constexpr qty foot                   = 0.3048 * metre;
@@ -538,6 +539,7 @@ namespace ut // operators, unit definitions and aliases
     static constexpr qty gallon                 = 3.785411784 * litre; // US gallon
     static constexpr qty imperial_gallon        = 4.54609 * litre;
     static constexpr qty quart                  = 0.946352946 * litre;
+    static constexpr qty inches_of_mercury      = 3386.3886666667 * ut::pascal;
 
     static constexpr qty_offset<double,qty_dimensions<0,0,0,0,1>> fahrenheit{ .value = rankine.value, .offset = 459.67 };
 
